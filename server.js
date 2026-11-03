@@ -104,7 +104,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
 
     if (req.body.provider === "zara") {
       if (req.file) return res.status(400).json({ error: "ZARA currently accepts text prompts only; reference-image support is not enabled in this Colab bridge." });
-      const zaraUrl = String(process.env.ZARA_API_URL || "").replace(/\\/+$/, "");
+      const zaraUrl = String(process.env.ZARA_API_URL || "").replace(/\/+$/, "");
       const zaraToken = process.env.ZARA_API_TOKEN || "";
       if (!zaraUrl || !zaraToken) return res.status(503).json({ error: "ZARA Studio is not connected yet. Set ZARA_API_URL and ZARA_API_TOKEN in Render Environment." });
       const response = await fetch(zaraUrl + "/generate", {
