@@ -107,7 +107,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
       const zaraUrl = String(process.env.ZARA_API_URL || "").replace(/\/+$/, "");
       const zaraToken = process.env.ZARA_API_TOKEN || "";
       if (!zaraUrl || !zaraToken) return res.status(503).json({ error: "ZARA Studio is not connected yet. Set ZARA_API_URL and ZARA_API_TOKEN in Render Environment." });
-      const response = await fetch(zaraUrl + "/generate", {
+      let zaraResponse = await fetch(zaraUrl + "/generate", {
         method: "POST",
         headers: { "Authorization": "Bearer " + zaraToken, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,12 +118,25 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
           cfg: Math.min(10, Math.max(2, Number(req.body.cfg) || 6)),
           seed: Number.isFinite(Number(req.body.seed)) ? Number(req.body.seed) : Math.floor(Math.random() * 2147483647)
         }),
-        signal: AbortSignal.timeout(900000)
+        signal: AbortSignal.timeout(30000)
       });
-      const data = await readJson(response);
-      if (!response.ok) return res.status(response.status).json({ error: providerError(data, "ZARA Studio generation failed.") });
-      if (!data.image_base64) return res.status(502).json({ error: data.error || "ZARA bridge returned no image." });
-      return res.json({ image_base64: data.image_base64, media_type: data.media_type || "image/png", provider: "zara", status: data.status || "completed" });
+      let zaraData = await readJson(zaraResponse);
+      if (!zaraResponse.ok) return res.status(zaraResponse.status).json({ error: providerError(zaraData, "ZARA Studio generation failed.") });
+      const jobId = zaraData.job_id;
+      if (!jobId && !zaraData.image_base64) return res.status(502).json({ error: zaraData.error || "ZARA bridge did not return a job ID." });
+      const deadline = Date.now() + 840000;
+      while (jobId && zaraData.status !== "completed" && zaraData.status !== "failed" && Date.now() < deadline) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        zaraResponse = await fetch(zaraUrl + "/result/" + encodeURIComponent(jobId), {
+          headers: { "Authorization": "Bearer " + zaraToken },
+          signal: AbortSignal.timeout(30000)
+        });
+        zaraData = await readJson(zaraResponse);
+        if (!zaraResponse.ok) return res.status(zaraResponse.status).json({ error: providerError(zaraData, "ZARA job status check failed.") });
+        if (zaraData.status === "failed") return res.status(502).json({ error: zaraData.error || "ZARA image generation failed." });
+      }
+      if (!zaraData.image_base64) return res.status(504).json({ error: "ZARA generation timed out or returned no image. Check that the Colab runtime is still running." });
+      return res.json({ image_base64: zaraData.image_base64, media_type: zaraData.media_type || "image/png", provider: "zara", status: "completed" });
     }
 
     if (req.body.provider === "civitai") {
