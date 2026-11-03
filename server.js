@@ -61,7 +61,7 @@ app.post("/api/chat", async (req, res) => {
     let response, data;
     if (provider === "civitai") {
       const key = civitaiToken();
-      if (!key) return res.status(503).json({ error: "Civitai connect nahi hai. Render Environment mein CIVITAI_API_TOKEN set karo." });
+      if (!key) return res.status(503).json({ error: "Civitai connect nahi hai. Render Environment mein CIVITAI_API_KEY set karo." });
       const model = process.env.CIVITAI_CHAT_MODEL || DEFAULT_CIVITAI_CHAT_MODEL;
       response = await fetch(CIVITAI_BASE + "/v1/chat/completions", {
         method: "POST",
@@ -103,7 +103,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
 
     if (req.body.provider === "civitai") {
       const key = civitaiToken();
-      if (!key) return res.status(503).json({ error: "Civitai connect nahi hai. Render Environment mein CIVITAI_API_TOKEN set karo." });
+      if (!key) return res.status(503).json({ error: "Civitai connect nahi hai. Render Environment mein CIVITAI_API_KEY set karo." });
       if (req.file) return res.status(400).json({ error: "Civitai ke is initial integration mein reference-image upload abhi supported nahi hai. Reference ke bina try karo." });
       const workflow = {
         steps: [{
