@@ -31,7 +31,7 @@ $("chatForm").addEventListener("submit", async e => {
 });
 $("reference").addEventListener("change", () => { $("fileName").textContent = $("reference").files[0]?.name || "＋ Choose reference image"; });
 $("imageForm").addEventListener("submit", async e => {
-  e.preventDefault(); const result = $("imageResult"); result.textContent = "Sending request to GPU worker…";
+  e.preventDefault(); const result = $("imageResult"); result.textContent = "Generating image with OpenRouter…";
   const form = new FormData(); form.append("prompt",$("prompt").value); form.append("width",$("width").value); form.append("height",$("height").value);
   if ($("reference").files[0]) form.append("reference",$("reference").files[0]);
   try {
@@ -39,11 +39,11 @@ $("imageForm").addEventListener("submit", async e => {
     if (!r.ok) throw new Error(data.error || "Generation failed.");
     result.innerHTML = "";
     if (data.image_url) { const img = document.createElement("img"); img.src = data.image_url; result.append(img); }
-    else if (data.image_base64) { const img = document.createElement("img"); img.src = "data:image/png;base64," + data.image_base64; result.append(img); }
+    else if (data.image_base64) { const img = document.createElement("img"); img.src = "data:" + (data.media_type || "image/png") + ";base64," + data.image_base64; result.append(img); }
     else result.textContent = "Worker replied, but no image_url or image_base64 was returned.";
   } catch (err) { result.textContent = err.message; }
 });
 fetch("/api/status").then(r=>r.json()).then(s=>{
-  $("connection").textContent = s.chatConfigured ? "Chat model connected" : "Waiting for AI model key";
+  $("connection").textContent = s.chatConfigured ? "OpenRouter connected" : "Waiting for OpenRouter key";
   document.querySelector(".status-dot").style.background = s.chatConfigured ? "#54d6a1" : "#edb65b";
 }).catch(()=>{$("connection").textContent="Status unavailable";});
