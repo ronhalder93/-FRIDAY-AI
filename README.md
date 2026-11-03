@@ -27,3 +27,21 @@ npm install
 npm start
 ```
 Open http://localhost:3000.
+
+
+## AI providers
+
+FRIDAY AI supports two selectable providers in the interface:
+
+- **OpenRouter Free** for chat (model defaults to `openrouter/free`) and OpenRouter image generation.
+- **Civitai** for chat and image workflows through the official Orchestration API.
+
+Set these secrets in Render → Environment (never commit API tokens):
+
+- `CIVITAI_API_TOKEN`: Civitai API key. The server also recognizes the legacy names `CIVITAI_TOKEN` and `CIVITAI_API_KEY`.
+- `CIVITAI_CHAT_MODEL`: optional Civitai AIR model URN. Defaults to the documented Qwen3.6 model URN.
+- `CIVITAI_IMAGE_MODEL`: optional Civitai AIR checkpoint URN. Defaults to the documented SD1 checkpoint example.
+- `CIVITAI_IMAGE_ENGINE`: optional image engine (defaults to `sdcpp`).
+- `CIVITAI_IMAGE_ECOSYSTEM`: optional model ecosystem (defaults to `sd1`).
+
+Civitai generation uses Civitai account credits/limits and is not guaranteed to be free or unlimited. The first Civitai image route does not yet accept reference-image uploads; use OpenRouter for reference-guided generation. Select the provider separately in Chat and Image Studio.
