@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b12"><title>FRIDAY AI</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="orb">F</div><div><strong>FRIDAY AI</strong><small>Your AI workspace</small></div></div>
+    <button class="new-chat" id="newChat">＋ New chat</button>
+    <div class="nav-label">WORKSPACE</div>
+    <button class="nav active" data-view="chat"><span>◈</span> AI Assistant</button>
+    <button class="nav" data-view="image"><span>✧</span> Image Studio</button>
+    <div class="side-bottom"><div class="status-dot"></div><span id="connection">Connecting…</span><small>Independent AI workspace</small></div>
+  </aside>
+  <main>
+    <header><button class="mobile-brand" id="menu">☰</button><div><b id="pageTitle">AI Assistant</b><small id="pageSub">Ask anything. Create something.</small></div><span class="model-pill"><i></i> FRIDAY online</span></header>
+    <section class="view active" id="chatView">
+      <div class="welcome" id="welcome"><div class="hero-orb">F</div><p class="eyebrow">YOUR PERSONAL AI</p><h1>Good to see you.</h1><p class="muted">I'm FRIDAY. What can I help you with today?</p>
+        <div class="suggestions"><button>Explain something simply</button><button>Help me write</button><button>Brainstorm an idea</button><button>Translate Bengali or Hindi</button></div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <form class="composer" id="chatForm"><textarea id="chatInput" rows="1" placeholder="Message FRIDAY…" required></textarea><button class="send" aria-label="Send">↑</button><div class="composer-note">FRIDAY can make mistakes. Check important information.</div></form>
+    </section>
+    <section class="view image-view" id="imageView">
+      <div class="studio-head"><p class="eyebrow">CREATIVE WORKSPACE</p><h1>Image Studio</h1><p class="muted">Describe the image you want to create. Connect a GPU worker to enable generation.</p></div>
+      <form id="imageForm" class="image-form">
+        <label for="prompt">IMAGE PROMPT</label><textarea id="prompt" rows="5" placeholder="Describe your scene, subject, lighting, composition and art style…" required></textarea>
+        <div class="fields"><div><label for="width">WIDTH</label><select id="width"><option>1024</option><option>768</option><option>512</option></select></div><div><label for="height">HEIGHT</label><select id="height"><option>1024</option><option>768</option><option>512</option></select></div></div>
+        <label class="upload">REFERENCE IMAGE (OPTIONAL)<input type="file" id="reference" accept="image/*"><span id="fileName">＋ Choose reference image</span></label>
+        <button class="primary" type="submit">✧ Generate image</button>
+      </form>
+      <div class="result" id="imageResult"><div class="result-icon">✧</div><p>Your generated image will appear here.</p></div>
+    </section>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body></html>
