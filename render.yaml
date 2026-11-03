@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: friday-ai
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: GPU_WORKER_URL
+        sync: false
+      - key: GPU_WORKER_TOKEN
+        sync: false
