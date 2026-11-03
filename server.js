@@ -156,7 +156,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
     const ratio = width / height;
     const aspectRatio = Math.abs(ratio - 1) < 0.1 ? "1:1" : ratio > 1 ? (ratio > 1.5 ? "16:9" : "4:3") : (ratio < 0.67 ? "9:16" : "3:4");
     const body = {
-      model: process.env.OPENROUTER_IMAGE_MODEL || "bytedance-seed/seedream-5.0-flash",
+      model: process.env.OPENROUTER_IMAGE_MODEL || "bytedance-seed/seedream-5-0-flash",
       prompt,
       n: 1,
       aspect_ratio: aspectRatio,
