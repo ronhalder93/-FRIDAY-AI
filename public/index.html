@@ -2,37 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090b12"><title>FRIDAY AI</title>
+<meta name="theme-color" content="#090a13"><title>❤️ FRIDAY AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+<div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
 <div class="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="orb">F</div><div><strong>FRIDAY AI</strong><small>Your AI workspace</small></div></div>
-    <button class="new-chat" id="newChat">＋ New chat</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-mark"><span>F</span><i></i></div><div class="brand-copy"><strong>FRIDAY <em>AI</em></strong><small>YOUR CREATIVE COPILOT</small></div><button class="icon-btn close-side" id="closeSidebar" aria-label="Close sidebar">×</button></div>
+    <button class="new-chat" id="newChat"><span>＋</span> New chat <kbd>⌘ K</kbd></button>
     <div class="nav-label">WORKSPACE</div>
-    <button class="nav active" data-view="chat"><span>◈</span> AI Assistant</button>
-    <button class="nav" data-view="image"><span>✧</span> Image Studio</button>
-    <div class="side-bottom"><div class="status-dot"></div><span id="connection">Connecting…</span><small>Independent AI workspace</small></div>
+    <button class="nav active" data-view="chat"><span class="nav-icon">◈</span><span>AI Assistant</span><b class="nav-glow"></b></button>
+    <button class="nav" data-view="image"><span class="nav-icon">✧</span><span>Image Studio</span><small class="new-tag">AI</small></button>
+    <div class="history-head"><span>RECENT CHATS</span><button id="clearHistory" title="Clear recent chats">···</button></div>
+    <div class="history-list" id="historyList"><p class="empty-history">Your conversations will appear here.</p></div>
+    <div class="sidebar-bottom">
+      <div class="connection-card"><span class="pulse-dot"></span><div><b id="connection">Connecting…</b><small>AI systems status</small></div><span class="connection-arrow">↗</span></div>
+      <div class="profile"><div class="profile-avatar">R</div><div><b>My workspace</b><small>Personal account</small></div><span class="profile-more">•••</span></div>
+    </div>
   </aside>
-  <main>
-    <header><button class="mobile-brand" id="menu">☰</button><div><b id="pageTitle">AI Assistant</b><small id="pageSub">Ask anything. Create something.</small></div><span class="model-pill"><i></i> FRIDAY online</span></header>
+  <main class="main">
+    <header class="topbar"><div class="top-left"><button class="icon-btn menu-btn" id="menu" aria-label="Open menu">☰</button><div class="crumb"><span>FRIDAY AI</span><b>/</b><strong id="pageTitle">AI Assistant</strong></div></div><div class="top-actions"><div class="model-pill"><span class="model-spark">✦</span><span>FRIDAY <b>GPT</b></span><i></i></div><button class="icon-btn top-more" title="More options">···</button></div></header>
     <section class="view active" id="chatView">
-      <div class="welcome" id="welcome"><div class="hero-orb">F</div><p class="eyebrow">YOUR PERSONAL AI</p><h1>Good to see you.</h1><p class="muted">I'm FRIDAY. What can I help you with today?</p>
-        <div class="suggestions"><button>Explain something simply</button><button>Help me write</button><button>Brainstorm an idea</button><button>Translate Bengali or Hindi</button></div>
+      <div class="welcome" id="welcome"><div class="welcome-orbit"><div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div><div class="welcome-core">F<span>✦</span></div></div><p class="eyebrow"><span></span> YOUR AI, YOUR UNIVERSE</p><h1>What are we <span>creating</span><br>today?</h1><p class="welcome-sub">Ideas, answers, code, stories — let's make something amazing.</p>
+        <div class="suggestions"><button data-prompt="Explain a difficult topic in simple words."><span class="suggestion-icon violet">✧</span><span><b>Learn something</b><small>Make complex things simple</small></span><i>↗</i></button><button data-prompt="Help me write something creative and engaging."><span class="suggestion-icon blue">✎</span><span><b>Write anything</b><small>Stories, emails and ideas</small></span><i>↗</i></button><button data-prompt="Help me brainstorm a fresh creative idea."><span class="suggestion-icon pink">⌘</span><span><b>Brainstorm</b><small>Explore new possibilities</small></span><i>↗</i></button><button data-prompt="Translate this into Bengali and explain the meaning."><span class="suggestion-icon aqua">文</span><span><b>Translate</b><small>Bengali, Hindi and English</small></span><i>↗</i></button></div>
       </div>
-      <div class="messages" id="messages"></div>
-      <form class="composer" id="chatForm"><textarea id="chatInput" rows="1" placeholder="Message FRIDAY…" required></textarea><button class="send" aria-label="Send">↑</button><div class="composer-note">FRIDAY can make mistakes. Check important information.</div></form>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <form class="composer-wrap" id="chatForm"><div class="composer"><textarea id="chatInput" rows="1" placeholder="Message FRIDAY…" required></textarea><div class="composer-tools"><div class="tool-left"><button type="button" class="tool-btn" id="attachButton" title="Attachment coming soon">＋</button><span class="composer-hint">Ask anything</span></div><div class="tool-right"><span class="input-shortcut">↵ to send</span><button class="send" aria-label="Send message">↑</button></div></div></div><div class="composer-note">FRIDAY AI can make mistakes. Verify important information.</div></form>
     </section>
     <section class="view image-view" id="imageView">
-      <div class="studio-head"><p class="eyebrow">CREATIVE WORKSPACE</p><h1>Image Studio</h1><p class="muted">Generate images with OpenRouter. Add a reference image to guide edits and variations.</p></div>
-      <form id="imageForm" class="image-form">
-        <label for="prompt">IMAGE PROMPT</label><textarea id="prompt" rows="5" placeholder="Describe your scene, subject, lighting, composition and art style…" required></textarea>
+      <div class="studio-banner"><div><p class="eyebrow"><span></span> CREATIVE WORKSPACE</p><h1>Image <span>Studio</span></h1><p>Turn your imagination into visuals. Describe it, guide it, create it.</p></div><div class="studio-orb">✧</div></div>
+      <div class="studio-grid"><form id="imageForm" class="image-panel"><div class="panel-title"><span class="panel-icon">✦</span><div><b>Create an image</b><small>Describe what you want to see</small></div></div>
+        <label for="prompt">YOUR PROMPT</label><textarea id="prompt" rows="6" placeholder="A cinematic anime illustration of a futuristic city at sunset, dramatic lighting, intricate details…" required></textarea>
         <div class="fields"><div><label for="width">WIDTH</label><select id="width"><option>1024</option><option>768</option><option>512</option></select></div><div><label for="height">HEIGHT</label><select id="height"><option>1024</option><option>768</option><option>512</option></select></div></div>
-        <label class="upload">REFERENCE IMAGE (OPTIONAL)<input type="file" id="reference" accept="image/*"><span id="fileName">＋ Choose reference image</span></label>
-        <button class="primary" type="submit">✧ Generate image</button>
-      </form>
-      <div class="result" id="imageResult"><div class="result-icon">✧</div><p>Your generated image will appear here.</p></div>
+        <label class="upload" for="reference"><span class="upload-icon">＋</span><span><b>Reference image</b><small id="fileName">Upload an image to guide the result</small></span><input type="file" id="reference" accept="image/*"></label>
+        <button class="primary" type="submit"><span>✧</span> Generate image <b>→</b></button><p class="fine-print">Generation may use paid provider credits.</p>
+      </form><div class="result-panel"><div class="result-top"><b>Preview</b><span>YOUR CREATION</span></div><div class="result" id="imageResult"><div class="result-art"><span>✧</span></div><b>Your canvas is ready</b><p>Your generated image will appear here.</p></div></div></div>
     </section>
   </main>
 </div>
