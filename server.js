@@ -11,22 +11,22 @@ app.get("/api/status", (_req, res) => {
   res.json({
     name: "FRIDAY AI",
     status: "online",
-    chatConfigured: Boolean(process.env.OPENAI_API_KEY),
+    chatConfigured: Boolean(process.env.OPENROUTER_API_KEY),
     imageWorkerConfigured: Boolean(process.env.GPU_WORKER_URL)
   });
 });
 
 app.post("/api/chat", async (req, res) => {
   try {
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) return res.status(503).json({ error: "Chat model abhi connect nahi hai. Render Environment mein OPENAI_API_KEY set karna hoga." });
+    const key = process.env.OPENROUTER_API_KEY;
+    if (!key) return res.status(503).json({ error: "Chat model abhi connect nahi hai. Render Environment mein OPENROUTER_API_KEY set karna hoga." });
     const { messages = [], language = "auto" } = req.body || {};
     if (!Array.isArray(messages) || messages.length === 0) return res.status(400).json({ error: "Message required." });
     const safeMessages = messages.slice(-20).map(m => ({
       role: ["user", "assistant"].includes(m.role) ? m.role : "user",
       content: String(m.content || "").slice(0, 12000)
     }));
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
       body: JSON.stringify({
