@@ -68,7 +68,10 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
       resolution: "1K"
     };
     if (req.file) {
-      body.input_references = ["data:" + req.file.mimetype + ";base64," + req.file.buffer.toString("base64")];
+      body.input_references = [{
+        type: "image_url",
+        image_url: { url: "data:" + req.file.mimetype + ";base64," + req.file.buffer.toString("base64") }
+      }];
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/images", {
