@@ -98,7 +98,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
   try {
     const prompt = String(req.body.prompt || "").trim().slice(0, 5000);
     if (!prompt) return res.status(400).json({ error: "Image prompt required." });
-    if (req.file && !req.file.mimetype.startsWith("image/")) return res.status(400).json({ error: "Reference file image honi chahiye." });
+    if (req.file && !req.file.mimetype.startsWith("image/")) return res.status(400).json({ error: "Reference file honi chahiye." });
     const width = Math.min(1536, Math.max(512, Number(req.body.width) || 1024));
     const height = Math.min(1536, Math.max(512, Number(req.body.height) || 1024));
 
@@ -113,7 +113,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
         body: JSON.stringify({
           prompt, width, height,
           style: String(req.body.style || "photo"),
-          mode: String(req.body.mode || "single"),
+          mode: "single",
           steps: Math.min(50, Math.max(12, Number(req.body.steps) || 32)),
           cfg: Math.min(10, Math.max(2, Number(req.body.cfg) || 6)),
           seed: Number.isFinite(Number(req.body.seed)) ? Number(req.body.seed) : Math.floor(Math.random() * 2147483647)
@@ -125,15 +125,6 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
       if (!data.image_base64) return res.status(502).json({ error: data.error || "ZARA bridge returned no image." });
       return res.json({ image_base64: data.image_base64, media_type: data.media_type || "image/png", provider: "zara", status: data.status || "completed" });
     }
-
-    if (req.body.provider === "civitai") {
-      const key = civitaiToken();
-  try {
-    const prompt = String(req.body.prompt || "").trim().slice(0, 5000);
-    if (!prompt) return res.status(400).json({ error: "Image prompt required." });
-    if (req.file && !req.file.mimetype.startsWith("image/")) return res.status(400).json({ error: "Reference file image honi chahiye." });
-    const width = Math.min(1536, Math.max(512, Number(req.body.width) || 1024));
-    const height = Math.min(1536, Math.max(512, Number(req.body.height) || 1024));
 
     if (req.body.provider === "civitai") {
       const key = civitaiToken();
@@ -149,8 +140,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
             model: process.env.CIVITAI_IMAGE_MODEL || DEFAULT_CIVITAI_IMAGE_MODEL,
             prompt,
             negativePrompt: String(req.body.negativePrompt || "worst quality, low quality, blurry").slice(0, 2000),
-            width,
-            height,
+            width, height,
             steps: Math.min(40, Math.max(10, Number(req.body.steps) || 20)),
             cfgScale: Math.min(12, Math.max(1, Number(req.body.cfgScale) || 7))
           }
@@ -164,9 +154,8 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
       });
       let data = await readJson(response);
       if (!response.ok) return res.status(response.status).json({ error: providerError(data, "Civitai image workflow failed.") });
-      let workflowId = data.id || data.workflowId;
+      const workflowId = data.id || data.workflowId;
       const getStatus = x => String(x?.status || x?.state || "").toLowerCase();
-      let status = getStatus(data);
       const done = x => ["succeeded", "success", "completed", "complete"].includes(getStatus(x));
       const failed = x => ["failed", "error", "cancelled", "canceled"].includes(getStatus(x));
       let attempts = 0;
@@ -181,7 +170,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
       }
       if (failed(data)) return res.status(502).json({ error: providerError(data, "Civitai image workflow failed.") });
       const imageUrl = findImageUrl(data);
-      if (!imageUrl) return res.status(202).json({ pending: true, workflow_id: workflowId || null, status: status || getStatus(data) || "processing", message: "Civitai job abhi process ho raha hai. Thodi der baad dobara check karo." });
+      if (!imageUrl) return res.status(202).json({ pending: true, workflow_id: workflowId || null, status: getStatus(data) || "processing", message: "Civitai job abhi process ho raha hai. Thodi der baad dobara check karo." });
       return res.json({ image_url: imageUrl, provider: "civitai", model: process.env.CIVITAI_IMAGE_MODEL || DEFAULT_CIVITAI_IMAGE_MODEL, workflow_id: workflowId || null });
     }
 
@@ -191,10 +180,7 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
     const aspectRatio = Math.abs(ratio - 1) < 0.1 ? "1:1" : ratio > 1 ? (ratio > 1.5 ? "16:9" : "4:3") : (ratio < 0.67 ? "9:16" : "3:4");
     const body = {
       model: process.env.OPENROUTER_IMAGE_MODEL || "bytedance-seed/seedream-5-0-flash",
-      prompt,
-      n: 1,
-      aspect_ratio: aspectRatio,
-      resolution: "1K"
+      prompt, n: 1, aspect_ratio: aspectRatio, resolution: "1K"
     };
     if (req.file) body.input_references = [{ type: "image_url", image_url: { url: "data:" + req.file.mimetype + ";base64," + req.file.buffer.toString("base64") } }];
     const response = await fetch("https://openrouter.ai/api/v1/images", {
@@ -207,9 +193,9 @@ app.post("/api/generate", upload.single("reference"), async (req, res) => {
     if (!response.ok) return res.status(response.status).json({ error: providerError(data, "OpenRouter image request failed.") });
     const image = data.data?.[0];
     if (!image?.b64_json && !image?.url) return res.status(502).json({ error: "Image provider ne image data return nahi ki." });
-    res.json({ image_base64: image.b64_json || undefined, image_url: image.url || undefined, media_type: image.media_type || "image/png", cost: data.usage?.cost ?? null, model: body.model, provider: "openrouter" });
+    return res.json({ image_base64: image.b64_json || undefined, image_url: image.url || undefined, media_type: image.media_type || "image/png", cost: data.usage?.cost ?? null, model: body.model, provider: "openrouter" });
   } catch (e) {
-    res.status(500).json({ error: "Image generation failed: " + e.message });
+    return res.status(500).json({ error: "Image generation failed: " + e.message });
   }
 });
 
