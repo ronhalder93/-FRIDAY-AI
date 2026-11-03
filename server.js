@@ -42,7 +42,8 @@ app.get("/api/status", (_req, res) => {
     name: "FRIDAY AI",
     status: "online",
     chatConfigured: Boolean(process.env.OPENROUTER_API_KEY),
-    imageConfigured: Boolean(process.env.OPENROUTER_API_KEY),
+    imageConfigured: Boolean(process.env.ZARA_API_URL && process.env.ZARA_API_TOKEN) || Boolean(process.env.OPENROUTER_API_KEY),
+    zaraConfigured: Boolean(process.env.ZARA_API_URL && process.env.ZARA_API_TOKEN),
     civitaiConfigured: civitaiReady,
     civitaiChatConfigured: civitaiReady,
     civitaiImageConfigured: civitaiReady
@@ -94,6 +95,39 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.post("/api/generate", upload.single("reference"), async (req, res) => {
+  try {
+    const prompt = String(req.body.prompt || "").trim().slice(0, 5000);
+    if (!prompt) return res.status(400).json({ error: "Image prompt required." });
+    if (req.file && !req.file.mimetype.startsWith("image/")) return res.status(400).json({ error: "Reference file image honi chahiye." });
+    const width = Math.min(1536, Math.max(512, Number(req.body.width) || 1024));
+    const height = Math.min(1536, Math.max(512, Number(req.body.height) || 1024));
+
+    if (req.body.provider === "zara") {
+      if (req.file) return res.status(400).json({ error: "ZARA currently accepts text prompts only; reference-image support is not enabled in this Colab bridge." });
+      const zaraUrl = String(process.env.ZARA_API_URL || "").replace(/\\/+$/, "");
+      const zaraToken = process.env.ZARA_API_TOKEN || "";
+      if (!zaraUrl || !zaraToken) return res.status(503).json({ error: "ZARA Studio is not connected yet. Set ZARA_API_URL and ZARA_API_TOKEN in Render Environment." });
+      const response = await fetch(zaraUrl + "/generate", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + zaraToken, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt, width, height,
+          style: String(req.body.style || "photo"),
+          mode: String(req.body.mode || "single"),
+          steps: Math.min(50, Math.max(12, Number(req.body.steps) || 32)),
+          cfg: Math.min(10, Math.max(2, Number(req.body.cfg) || 6)),
+          seed: Number.isFinite(Number(req.body.seed)) ? Number(req.body.seed) : Math.floor(Math.random() * 2147483647)
+        }),
+        signal: AbortSignal.timeout(900000)
+      });
+      const data = await readJson(response);
+      if (!response.ok) return res.status(response.status).json({ error: providerError(data, "ZARA Studio generation failed.") });
+      if (!data.image_base64) return res.status(502).json({ error: data.error || "ZARA bridge returned no image." });
+      return res.json({ image_base64: data.image_base64, media_type: data.media_type || "image/png", provider: "zara", status: data.status || "completed" });
+    }
+
+    if (req.body.provider === "civitai") {
+      const key = civitaiToken();
   try {
     const prompt = String(req.body.prompt || "").trim().slice(0, 5000);
     if (!prompt) return res.status(400).json({ error: "Image prompt required." });
