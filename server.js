@@ -30,7 +30,7 @@ app.post("/api/chat", async (req, res) => {
       method: "POST",
       headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        model: process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini",
         messages: [
           { role: "system", content: "You are FRIDAY, a helpful, capable multilingual AI assistant. Reply in the user's language (including Bengali, Hindi, English or Hinglish). Be clear and honest about limitations. Do not claim to have generated images unless an image worker actually returns one. User language preference: " + language }
         ].concat(safeMessages),
